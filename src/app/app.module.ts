@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { ViewportComponent } from './viewport/viewport.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -10,7 +11,8 @@ import { ViewportComponent } from './viewport/viewport.component';
     ViewportComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpClientModule    
   ],
   providers: [],
   bootstrap: [AppComponent]

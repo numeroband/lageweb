@@ -5,6 +5,7 @@ import { VertexShader } from './vertex-shader';
 import { FragmentShader } from './fragment-shader';
 import { ShadersProgram } from './shaders-program';
 import { Cursor } from './cursor';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-viewport',
@@ -25,13 +26,12 @@ export class ViewportComponent implements OnInit {
   private mouseY: number = 0;
   private cursor: Cursor;
   
-  constructor(private ngZone: NgZone) { }
+  constructor(private ngZone: NgZone, private http: HttpClient) { }
 
   createObjects(roomName) {
     const gl: WebGLRenderingContext = this.canvasRef.nativeElement.getContext('webgl');
 
-    return fetch(`assets/jsons/${roomName}.json`)
-      .then(r => r.json())
+    return this.http.get<any>(`assets/jsons/${roomName}.json`).toPromise()
       .then(room => {
         const tex = this.program.texture(roomName);
         this.objs = Object.values(room.objects).map(({name, images, rect}) => new Objeto(tex, name, images, rect));
