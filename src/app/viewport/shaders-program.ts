@@ -2,12 +2,13 @@ import { Texture } from './texture';
 
 export class ShadersProgram {
     readonly MAX_TEXTURES = 8;
+    readonly VERTEX_ELEMENTS = 6;
 
     private program: WebGLProgram;
     private positionLocation: number;
     private texcoordLocation: number;
     private positionBuffer: WebGLBuffer;
-    private texcoordBuffer: WebGLBuffer;
+    private texindexLocation: number;
     private texturesLocation: WebGLUniformLocation;
     private textures: {[name: string]: Texture} = {};
     
@@ -15,8 +16,8 @@ export class ShadersProgram {
         this.program = this.initShaderProgram(gl, shaderSrc, fragmentSrc);
         this.positionLocation = gl.getAttribLocation(this.program, 'a_position');
         this.texcoordLocation = gl.getAttribLocation(this.program, 'a_texcoord');
+        this.texindexLocation = gl.getAttribLocation(this.program, 'a_texindex');
         this.positionBuffer = gl.createBuffer();        
-        this.texcoordBuffer = gl.createBuffer();                    
         this.texturesLocation = gl.getUniformLocation(this.program, 'u_textures[0]');
     }
 
@@ -33,13 +34,24 @@ export class ShadersProgram {
     }
 
     setPositions(gl: WebGLRenderingContext, positions: number[]) {
-        this.configBuffer(gl, positions, this.positionLocation, this.positionBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);        
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+        const bytesPerElement = this.VERTEX_ELEMENTS * Float32Array.BYTES_PER_ELEMENT;
+        
+        gl.vertexAttribPointer(this.positionLocation, 3, gl.FLOAT, false, 
+            bytesPerElement, 0 * Float32Array.BYTES_PER_ELEMENT);
+        gl.enableVertexAttribArray(this.positionLocation);
+
+        gl.vertexAttribPointer(this.texcoordLocation, 2, gl.FLOAT, false, 
+            bytesPerElement, 3 * Float32Array.BYTES_PER_ELEMENT);
+        gl.enableVertexAttribArray(this.texcoordLocation);        
+
+        gl.vertexAttribPointer(this.texindexLocation, 1, gl.FLOAT, false, 
+            bytesPerElement, 5 * Float32Array.BYTES_PER_ELEMENT);            
+        gl.enableVertexAttribArray(this.texindexLocation);
     }
 
-    setTexcoords(gl: WebGLRenderingContext, texcoords: number[]) {
-        this.configBuffer(gl, texcoords, this.texcoordLocation, this.texcoordBuffer);
-    }
-    
     texture(name: string) {
         let tex = this.textures[name];
     
@@ -56,13 +68,6 @@ export class ShadersProgram {
         return tex;
       }
     
-    private configBuffer(gl: WebGLRenderingContext, array: number[], location: number, buffer: WebGLBuffer) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);        
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(array), gl.STATIC_DRAW);
-        gl.enableVertexAttribArray(location);
-        gl.vertexAttribPointer(location, 2, gl.FLOAT, false, 0, 0);
-    }
-
     private loadShader(gl: WebGLRenderingContext, type, source) {
         const shader = gl.createShader(type);
         gl.shaderSource(shader, source);
