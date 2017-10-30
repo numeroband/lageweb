@@ -1,4 +1,5 @@
 import { Texture } from './texture';
+import { Font } from './font';
 
 export class ShadersProgram {
     readonly MAX_TEXTURES = 8;
@@ -10,7 +11,8 @@ export class ShadersProgram {
     private positionBuffer: WebGLBuffer;
     private texindexLocation: number;
     private texturesLocation: WebGLUniformLocation;
-    private textures: {[name: string]: Texture} = {};
+    private texturesMap: {[name: string]: Texture} = {};
+    private texturesList: Texture[] = [];
     
     constructor(gl: WebGLRenderingContext, shaderSrc, fragmentSrc) { 
         this.program = this.initShaderProgram(gl, shaderSrc, fragmentSrc);
@@ -23,9 +25,8 @@ export class ShadersProgram {
 
     use(gl: WebGLRenderingContext) {
         gl.useProgram(this.program);
-        const textures = Object.values(this.textures);
         const locations: number[] = [];
-        textures.forEach((tex) => {
+        this.texturesList.forEach(tex => {
             gl.activeTexture(gl.TEXTURE0 + tex.index);
             tex.bind(gl);
             locations.push(tex.index);
@@ -52,21 +53,36 @@ export class ShadersProgram {
         gl.enableVertexAttribArray(this.texindexLocation);
     }
 
-    texture(name: string) {
-        let tex = this.textures[name];
-    
+    texture(name?: string): Texture {
+        if (!name) {
+            const tex = new Texture(this, this.texturesList.length);
+            this.texturesList.push(tex);
+            return tex;
+        }
+
+        let tex = this.texturesMap[name];
         if (!tex) {
-            const len = Object.keys(this.textures).length;
+            const len = this.texturesList.length;
             if (len == this.MAX_TEXTURES) {
                 console.error('Trying to create more than', len, 'textures');
                 return undefined;
             }
             tex = new Texture(this, len, `assets/images/${name}.png`);
-            this.textures[name] = tex;
+            this.texturesList.push(tex);
+            this.texturesMap[name] = tex;
         }
     
         return tex;
-      }
+    }
+
+    text(gl: WebGLRenderingContext, text: string, font: Font, tex?: Texture) {
+        if (!tex) {
+            tex = new Texture(this, this.texturesList.length);
+            this.texturesList.push(tex);
+        }
+        tex.createFromText(gl, font, text);
+        return tex;
+    }
     
     private loadShader(gl: WebGLRenderingContext, type, source) {
         const shader = gl.createShader(type);
