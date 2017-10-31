@@ -7,18 +7,14 @@ precision mediump float;
 varying vec2 v_texcoord;
 varying float v_texindex;
 
-uniform sampler2D u_textures[MAX_TEXTURES];
-
-vec4 colorFromTextureArray(int idx) {
-  for (int ii = 0; ii < MAX_TEXTURES; ++ii) {
-    if (ii == idx) {
-      return texture2D(u_textures[ii], v_texcoord);
-    }
-  }
-}
+uniform sampler2D u_texture;
 
 void main() {
-  gl_FragColor = colorFromTextureArray(int(v_texindex));
+  vec4 color = texture2D(u_texture, v_texcoord);
+  if (color.a == 0.0) {
+    discard;
+  }
+  gl_FragColor = color;
 }
 
 `;

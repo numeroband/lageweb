@@ -16,7 +16,7 @@ class FontChar {
         this.height = size[1];        
     }
 
-    render(colors: number[][], pixels: number[], stride: number,
+    render(colors: number[][], pixels: Uint8Array, stride: number,
         startX: number, startY: number, color?: number[]) {
 
         const lineX = startX * 4 + this.x * 4;
@@ -25,10 +25,12 @@ class FontChar {
             const lineStart = lineY * 4 * stride + lineX;
             this.char[i].forEach((colorIdx, idx) => {
                 const colorOutput = ((color && colorIdx == 1) ? color : colors[colorIdx]);
-                if (colorOutput) {
-                    pixels.splice(lineStart + (colorOutput.length * idx), 
-                        colorOutput.length, ...colorOutput);
+                if (!colorOutput) {
+                    return;
                 }
+                colorOutput.forEach((col, i) => {
+                    pixels[lineStart + (colorOutput.length * idx) + i] = col;                    
+                });
             });            
         }
     }
@@ -95,7 +97,7 @@ export class Font {
         return {x: minX, y: minY, width: maxW - minX, height: maxH - minY};
     }
 
-    render(text: string, pixels: number[], stride: number, x: number, y: number, color?: number[]) {
+    render(text: string, pixels: Uint8Array, stride: number, x: number, y: number, color?: number[]) {
         for (let i = 0; i < text.length; ++i) {
             const char: FontChar = this.chars[text.charCodeAt(i)];
             char.render(this.colors, pixels, stride, x, y, color);

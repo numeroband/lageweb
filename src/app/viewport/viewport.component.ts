@@ -1,13 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { Texture } from './texture';
-import { Objeto } from './objeto';
-import { VertexShader } from './vertex-shader';
-import { FragmentShader } from './fragment-shader';
-import { ShadersProgram } from './shaders-program';
+import { Room } from './room';
+import { Renderer } from './renderer';
 import { Cursor } from './cursor';
 import { HttpClient } from '@angular/common/http';
 import { Font } from './font';
 import { Text } from './text';
+import { Point, Rect } from './common';
 
 @Component({
   selector: 'app-viewport',
@@ -18,41 +17,28 @@ export class ViewportComponent implements OnInit {
 
   @ViewChild('vpCanvas') canvasRef: ElementRef;
   private running: boolean;
-  private gl: WebGLRenderingContext;
-  private objs: Objeto[];
-  private background: Objeto;
-  private program: ShadersProgram;
+  private room: Room;
+  private renderer: Renderer;
   private frames: number = 0;
   private lastTimestamp: number = Date.now();
-  private mouseX: number = 0;
-  private mouseY: number = 0;
+  private mouse: Point = new Point(0, 0);
   private cursor: Cursor;
   private fonts: {[name: string]: Font} = {};
   private texts: Text[];
+  private camera: Rect = new Rect(0, 0, 320, 200);
+  private fixedCamera: Rect = new Rect(0, 0, 320, 200);
   
   constructor(private ngZone: NgZone, private http: HttpClient) { }
 
-  private createObjects(roomName) {
-    const gl: WebGLRenderingContext = this.canvasRef.nativeElement.getContext('webgl');
-
-    return this.http.get<any>(`assets/jsons/${roomName}.json`).toPromise()
-      .then(room => {
-        const tex = this.program.texture(roomName);
-        this.objs = [];
-        for (const key in room.objects) {
-          const {name, images, rect} = room.objects[key];
-          this.objs.push(new Objeto(tex, name, images, rect));
-        }
-        const {name, images, rect} = room['background'];
-        this.background = new Objeto(tex, name, images, rect);
-        return Promise.all(this.objs.map(obj => obj.load(gl)));
-      });
+  private createRoom(roomName) {
+    this.room = new Room(roomName, this.renderer);
+    return this.room.load(this.http);
   }
 
-  private createCursor(gl: WebGLRenderingContext) {
-    const tex = this.program.texture('cursor');
+  private createCursor() {
+    const tex = this.renderer.newTexture();
     this.cursor = new Cursor(tex);
-    return this.cursor.load(gl);
+    return tex.fromImage('assets/images/cursor.png');
   }
 
   private createFont(name: string) {
@@ -66,27 +52,21 @@ export class ViewportComponent implements OnInit {
     return font.load(this.http);
   }
 
-
   ngOnInit() {
     const gl: WebGLRenderingContext =  this.canvasRef.nativeElement.getContext('webgl');
-    this.canvasRef.nativeElement.addEventListener("mousemove", (event) => this.mouseMove(event));
-    
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    this.canvasRef.nativeElement.addEventListener("mousemove", (event) => this.mouseMove(event));    
+    this.renderer = new Renderer(gl, new Rect(0, 0, gl.canvas.width, gl.canvas.height));
+    this.texts = [
+      this.renderer.newText(),
+      this.renderer.newText(),
+    ];
 
-    this.program = new ShadersProgram(gl, VertexShader, FragmentShader);
     Promise.all([
-      this.createObjects('Atlantis_09'),
-      this.createCursor(gl),
+      this.createRoom('Atlantis_09'),
+      this.createCursor(),
       this.createFont('Atlantis_65_Charset00'),
-      this.createFont('Atlantis_65_Charset01')
+      this.createFont('Atlantis_65_Charset01'),
     ]).then(() => {
-      this.texts = [
-        new Text(this.program.texture()),
-        new Text(this.program.texture()),
-      ];
       this.running = true;
       this.ngZone.runOutsideAngular(() => this.render());  
     });
@@ -94,9 +74,9 @@ export class ViewportComponent implements OnInit {
 
   mouseMove(event) {
     const rect = event.target.getBoundingClientRect();
-    this.mouseX = Math.floor((event.clientX - rect.left - 1) * 320 / rect.width);
-    this.mouseY = Math.floor((event.clientY - rect.top - 1) * 200 / rect.height);
-    this.cursor.update(this.mouseX, this.mouseY);
+    this.mouse.x = Math.floor((event.clientX - rect.left - 1) * 320 / rect.width);
+    this.mouse.y = Math.floor((event.clientY - rect.top - 1) * 200 / rect.height);
+    this.cursor.update(this.mouse);
   }
   
   render() {
@@ -107,27 +87,31 @@ export class ViewportComponent implements OnInit {
     const gl: WebGLRenderingContext = 
       this.canvasRef.nativeElement.getContext('webgl');
 
-    this.texts[0].setText(gl, 'Hello world!!!', this.fonts['Atlantis_65_Charset00']);
-    this.texts[0].x = 100;
-    this.texts[0].y = 100;
+    this.texts[0].setText('Hello world!!!', this.fonts['Atlantis_65_Charset00']);
+    this.texts[0].pos.x = 100;
+    this.texts[0].pos.y = 100;
 
-    this.texts[1].setText(gl, 'Hello again$$%%', this.fonts['Atlantis_65_Charset01']);
-    this.texts[1].x = 150;
-    this.texts[1].y = 50;
-    
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    this.program.use(gl);
-    const vertices = this.objs.reduce((prev, obj) => prev.concat(obj.vertices()), this.background.vertices());
-    vertices.push(...this.cursor.vertices());
-    this.texts.forEach(text => vertices.push(...text.vertices()));
-    this.program.setPositions(gl, vertices);
-    const numTriangles = vertices.length / this.program.VERTEX_ELEMENTS;
-    gl.drawArrays(gl.TRIANGLES, 0, numTriangles);
+    this.texts[1].setText('Hello again$$%%', this.fonts['Atlantis_65_Charset01']);
+    this.texts[1].pos.x = 150;
+    this.texts[1].pos.y = 50;
+
+    this.renderer.clear();
+    this.renderer.render(this.camera, this.room);
+    this.texts.forEach(text => this.renderer.render(this.fixedCamera, text));
+    this.renderer.render(this.fixedCamera, this.cursor);
 
     if (++this.frames % 500 == 0) {
       const now = Date.now();
       console.log(`Frame rate: ${500000 / (now - this.lastTimestamp)} fps`);
       this.lastTimestamp = now;
+    }
+
+    if (this.mouse.x > this.fixedCamera.width * 0.8 && this.camera.x < 300) {
+      this.camera.x++;
+    }
+
+    if (this.mouse.x < this.fixedCamera.width * 0.2 && this.camera.x > 0) {
+      this.camera.x--;
     }
 
     requestAnimationFrame(() => this.render());

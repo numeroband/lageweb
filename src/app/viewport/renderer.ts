@@ -1,45 +1,56 @@
+import { VertexShader } from './vertex-shader';
+import { FragmentShader } from './fragment-shader';
 import { Texture } from './texture';
+import { Text } from './text';
 import { Font } from './font';
+import { Rect } from './common';
 
-export class ShadersProgram {
-    readonly MAX_TEXTURES = 8;
-    readonly VERTEX_ELEMENTS = 6;
+export interface Renderable {
+    readonly tex: Texture;
+    vertices(camera: Rect);
+}
+
+export class Renderer {
+    readonly VERTEX_ELEMENTS = 3 + 2;
 
     private program: WebGLProgram;
     private positionLocation: number;
     private texcoordLocation: number;
     private positionBuffer: WebGLBuffer;
     private texindexLocation: number;
-    private texturesLocation: WebGLUniformLocation;
-    private texturesMap: {[name: string]: Texture} = {};
-    private texturesList: Texture[] = [];
     
-    constructor(gl: WebGLRenderingContext, shaderSrc, fragmentSrc) { 
-        this.program = this.initShaderProgram(gl, shaderSrc, fragmentSrc);
+    constructor(private gl: WebGLRenderingContext, viewport: Rect) {
+        gl.viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+        gl.clearDepth(0.0);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.GREATER);
+    
+        this.program = this.initShaderProgram(gl, VertexShader, FragmentShader);
         this.positionLocation = gl.getAttribLocation(this.program, 'a_position');
         this.texcoordLocation = gl.getAttribLocation(this.program, 'a_texcoord');
         this.texindexLocation = gl.getAttribLocation(this.program, 'a_texindex');
         this.positionBuffer = gl.createBuffer();        
-        this.texturesLocation = gl.getUniformLocation(this.program, 'u_textures[0]');
     }
 
-    use(gl: WebGLRenderingContext) {
-        gl.useProgram(this.program);
-        const locations: number[] = [];
-        this.texturesList.forEach(tex => {
-            gl.activeTexture(gl.TEXTURE0 + tex.index);
-            tex.bind(gl);
-            locations.push(tex.index);
-        });
-        gl.uniform1iv(this.texturesLocation, locations);
+    newTexture() {
+        return new Texture(this.gl);
     }
 
-    setPositions(gl: WebGLRenderingContext, positions: number[]) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);        
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    newText() {
+        return new Text(this.gl);
+    }
 
+    render(camera: Rect, obj: Renderable) {
+        const gl = this.gl;
         const bytesPerElement = this.VERTEX_ELEMENTS * Float32Array.BYTES_PER_ELEMENT;
-        
+        const triangles = obj.vertices(camera);
+
+        obj.tex.bind();
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);        
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangles), gl.STATIC_DRAW);
+
         gl.vertexAttribPointer(this.positionLocation, 3, gl.FLOAT, false, 
             bytesPerElement, 0 * Float32Array.BYTES_PER_ELEMENT);
         gl.enableVertexAttribArray(this.positionLocation);
@@ -48,40 +59,14 @@ export class ShadersProgram {
             bytesPerElement, 3 * Float32Array.BYTES_PER_ELEMENT);
         gl.enableVertexAttribArray(this.texcoordLocation);        
 
-        gl.vertexAttribPointer(this.texindexLocation, 1, gl.FLOAT, false, 
-            bytesPerElement, 5 * Float32Array.BYTES_PER_ELEMENT);            
-        gl.enableVertexAttribArray(this.texindexLocation);
-    }
-
-    texture(name?: string): Texture {
-        if (!name) {
-            const tex = new Texture(this, this.texturesList.length);
-            this.texturesList.push(tex);
-            return tex;
-        }
-
-        let tex = this.texturesMap[name];
-        if (!tex) {
-            const len = this.texturesList.length;
-            if (len == this.MAX_TEXTURES) {
-                console.error('Trying to create more than', len, 'textures');
-                return undefined;
-            }
-            tex = new Texture(this, len, `assets/images/${name}.png`);
-            this.texturesList.push(tex);
-            this.texturesMap[name] = tex;
-        }
+        const numTriangles = triangles.length / this.VERTEX_ELEMENTS;
+        gl.drawArrays(gl.TRIANGLES, 0, numTriangles);
     
-        return tex;
     }
 
-    text(gl: WebGLRenderingContext, text: string, font: Font, tex?: Texture) {
-        if (!tex) {
-            tex = new Texture(this, this.texturesList.length);
-            this.texturesList.push(tex);
-        }
-        tex.createFromText(gl, font, text);
-        return tex;
+    clear() {
+        this.gl.useProgram(this.program);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
     }
     
     private loadShader(gl: WebGLRenderingContext, type, source) {

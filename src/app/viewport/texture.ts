@@ -1,4 +1,4 @@
-import { ShadersProgram } from './shaders-program';
+import { Point, Rect } from './common';
 import { Font } from './font';
 
 export class Texture {
@@ -6,13 +6,12 @@ export class Texture {
     public height: number;
     private tex: WebGLTexture;
     private img: HTMLImageElement;
-    private offsetX: number = 0;
-    private offsetY: number = 0;
-    private loaded: boolean = false;
+    private offset: Point = new Point(0, 0);
     
-    constructor(private program: ShadersProgram, readonly index: number, private url?: string) { }
+    constructor(private gl: WebGLRenderingContext) { }
     
-    createTexture(gl: WebGLRenderingContext, bytes?: Uint8Array, width?: number, height?: number) {
+    private createTexture(bytes?: Uint8Array, width?: number, height?: number) {
+        const gl = this.gl;
         this.tex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.tex);
 
@@ -34,84 +33,63 @@ export class Texture {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
 
-    load(gl: WebGLRenderingContext): Promise<void> {
-        if (this.loaded) {
-            return Promise.resolve();
-        }
-
-        this.loaded = true;                
+    fromImage(url: string): Promise<void> {
         this.img = new Image();
         return new Promise<void>((resolve, reject) => {
-            this.img.src = this.url;
+            this.img.src = url;
             this.img.addEventListener('load', () => {
-                this.createTexture(gl);
+                this.createTexture();
                 resolve();
             });
         });
     }
 
-    vertices(zIndex, texX, texY,
-            texWidth, texHeight, 
-            dstX, dstY, 
-            dstWidth?, dstHeight?, flip?) {
+    vertices(camera: Rect, zIndex: number, src: Rect, dst: Rect, flip?: boolean) {
+        dst.x += this.offset.x - camera.x;
+        dst.y += this.offset.y - camera.y;
 
-        if (dstWidth === undefined) {
-            dstWidth = texWidth;
-        }
-            
-        if (dstHeight === undefined) {
-            dstHeight = texHeight;
-        }
-
-        dstX += this.offsetX;
-        dstY += this.offsetY;
-
-        const resX = 320.0;
-        const resY = 200.0;
-        const z = zIndex / 100;
+        const z = (zIndex + 1) / 100;
         
-        const minx = -1.0 + 2.0 * dstX / resX;
-        const maxx = -1.0 + 2.0 * (dstX + dstWidth) / resX;
-        const miny = -1.0 + 2.0 * dstY / resY;
-        const maxy = -1.0 + 2.0 * (dstY + dstHeight) / resY;
+        const minx = -1.0 + 2.0 * dst.x / camera.width;
+        const maxx = -1.0 + 2.0 * (dst.x + dst.width) / camera.width;
+        const miny = -1.0 + 2.0 * dst.y / camera.height;
+        const maxy = -1.0 + 2.0 * (dst.y + dst.height) / camera.height;
 
-        const minu = texX / this.width;
-        const maxu = (texX + texWidth) / this.width;
-        const minv = texY / this.height;
-        const maxv = (texY + texHeight) / this.height;
+        let minu = src.x / this.width;
+        let maxu = (src.x + src.width) / this.width;
+        const minv = src.y / this.height;
+        const maxv = (src.y + src.height) / this.height;
+
+        if (flip) {
+            const tmp = minu;
+            minu = maxu;
+            maxu = tmp;
+        }
         
         return [
-            minx, -miny, z, minu, minv, this.index,
-            maxx, -miny, z, maxu, minv, this.index,
-            minx, -maxy, z, minu, maxv, this.index,
+            minx, -miny, z, minu, minv,
+            maxx, -miny, z, maxu, minv,
+            minx, -maxy, z, minu, maxv,
 
-            maxx, -miny, z, maxu, minv, this.index,
-            minx, -maxy, z, minu, maxv, this.index,
-            maxx, -maxy, z, maxu, maxv, this.index
+            maxx, -miny, z, maxu, minv,
+            minx, -maxy, z, minu, maxv,
+            maxx, -maxy, z, maxu, maxv
         ];
     }
     
-    bind(gl: WebGLRenderingContext) {
-        gl.bindTexture(gl.TEXTURE_2D, this.tex);
+    bind() {
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
     }
 
-    //Loads image at specified path
-    createFromText(gl: WebGLRenderingContext, font: Font, text: string, color?: number[])
+    fromText(font: Font, text: string, color?: number[])
     {
-        if (!text)
-        {
-            this.tex = null;
-            return;
-        }
-        
         const {x, y, width, height} = font.getTextRect(text);
-        const pixels = new Array(4 * width * height);
+        const pixels = new Uint8Array(4 * width * height);
         pixels.fill(0);
         font.render(text, pixels, width, -x, -y, color);
-        this.createTexture(gl, new Uint8Array(pixels), width, height);
-        this.offsetX = x;
-        this.offsetY = y;
-        this.loaded = true;                
+        this.createTexture(pixels, width, height);
+        this.offset.x = x;
+        this.offset.y = y;
     }
     
 }
