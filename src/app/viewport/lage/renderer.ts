@@ -7,7 +7,7 @@ import { Rect } from './common';
 
 export interface Renderable {
     readonly tex: Texture;
-    vertices(camera: Rect);
+    vertices(camera: Rect): number[];
 }
 
 export class Renderer {
@@ -19,8 +19,7 @@ export class Renderer {
     private positionBuffer: WebGLBuffer;
     private texindexLocation: number;
     
-    constructor(private gl: WebGLRenderingContext, viewport: Rect) {
-        gl.viewport(viewport.x, viewport.y, viewport.width, viewport.height);
+    constructor(private gl: WebGLRenderingContext) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
         gl.clearDepth(0.0);
         gl.enable(gl.DEPTH_TEST);
@@ -31,6 +30,10 @@ export class Renderer {
         this.texcoordLocation = gl.getAttribLocation(this.program, 'a_texcoord');
         this.texindexLocation = gl.getAttribLocation(this.program, 'a_texindex');
         this.positionBuffer = gl.createBuffer();        
+    }
+
+    set viewport(rect: Rect) {
+        this.gl.viewport(rect.x, rect.y, rect.w, rect.h);
     }
 
     newTexture() {
@@ -45,6 +48,10 @@ export class Renderer {
         const gl = this.gl;
         const bytesPerElement = this.VERTEX_ELEMENTS * Float32Array.BYTES_PER_ELEMENT;
         const triangles = obj.vertices(camera);
+
+        if (triangles.length == 0) {
+            return;
+        }
 
         obj.tex.bind();
 

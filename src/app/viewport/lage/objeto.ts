@@ -3,7 +3,7 @@ import { Renderable } from './renderer';
 import { Texture } from './texture';
 
 export class Objeto implements Renderable {
-    public state: number = 1;
+    public state: number = 0;
 
     constructor(readonly tex: Texture, 
         readonly name: string,

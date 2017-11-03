@@ -1,7 +1,5 @@
 export const FragmentShader = `
 
-#define MAX_TEXTURES 8
-
 precision mediump float;
 
 varying vec2 v_texcoord;
