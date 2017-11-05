@@ -3,6 +3,7 @@ import { Renderer, Renderable } from './renderer';
 import { Texture } from './texture';
 import { Costume } from './costume';
 import { Objeto } from './objeto';
+import { Box } from './box';
 
 import { HttpClient } from '@angular/common/http';
 
@@ -14,6 +15,8 @@ export class Room implements Renderable {
     constructor(readonly name: string) { }
 
     load(http: HttpClient, renderer: Renderer) {
+        const box = new Box({}, []);
+
         this.tex = renderer.newTexture();
         return http.get<any>(`assets/jsons/${this.name}.json`).toPromise()
             .then(room => {

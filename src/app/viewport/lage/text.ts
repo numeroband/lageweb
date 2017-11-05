@@ -25,6 +25,10 @@ export class Text implements Renderable {
     }
 
     vertices(camera: Rect) {
+        if (!this.tex || !this.text || this.text.length == 0) {
+            return [];
+        }
+
         return this.tex.vertices(camera, 98, new Rect(0, 0, this.tex.width, this.tex.height),
             new Rect(this.pos.x, this.pos.y, this.tex.width, this.tex.height));
     }
