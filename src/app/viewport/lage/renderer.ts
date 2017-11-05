@@ -17,7 +17,9 @@ export class Renderer {
     private positionLocation: number;
     private texcoordLocation: number;
     private positionBuffer: WebGLBuffer;
-    private texindexLocation: number;
+    private cameraLocation: WebGLUniformLocation;
+    private texrectLocation: WebGLUniformLocation;
+    private textureLocation: WebGLUniformLocation;
     
     constructor(private gl: WebGLRenderingContext) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
@@ -28,7 +30,9 @@ export class Renderer {
         this.program = this.initShaderProgram(gl, VertexShader, FragmentShader);
         this.positionLocation = gl.getAttribLocation(this.program, 'a_position');
         this.texcoordLocation = gl.getAttribLocation(this.program, 'a_texcoord');
-        this.texindexLocation = gl.getAttribLocation(this.program, 'a_texindex');
+        this.cameraLocation = gl.getUniformLocation(this.program, 'u_camera');
+        this.texrectLocation = gl.getUniformLocation(this.program, 'u_texrect');
+        this.textureLocation = gl.getUniformLocation(this.program, 'u_texture');
         this.positionBuffer = gl.createBuffer();        
     }
 
@@ -55,7 +59,10 @@ export class Renderer {
 
         obj.tex.bind();
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);        
+        gl.activeTexture(gl.TEXTURE0);        
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+        gl.uniform1i(this.textureLocation, 0);
+        
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangles), gl.STATIC_DRAW);
 
         gl.vertexAttribPointer(this.positionLocation, 3, gl.FLOAT, false, 
@@ -65,6 +72,9 @@ export class Renderer {
         gl.vertexAttribPointer(this.texcoordLocation, 2, gl.FLOAT, false, 
             bytesPerElement, 3 * Float32Array.BYTES_PER_ELEMENT);
         gl.enableVertexAttribArray(this.texcoordLocation);        
+
+        gl.uniform4fv(this.cameraLocation, new Float32Array([camera.x, camera.y, camera.w, camera.h]));
+        gl.uniform2fv(this.texrectLocation, new Float32Array([obj.tex.width, obj.tex.height]));
 
         const numTriangles = triangles.length / this.VERTEX_ELEMENTS;
         gl.drawArrays(gl.TRIANGLES, 0, numTriangles);

@@ -44,36 +44,25 @@ export class Texture {
         });
     }
 
-    vertices(camera: Rect, zIndex: number, src: Rect, dst: Rect, flip?: boolean) {
-        dst.x += this.offset.x - camera.x;
-        dst.y += this.offset.y - camera.y;
+    vertices(camera: Rect, z: number, src: Rect, dst: Rect, flip?: boolean) {
+        const minx = dst.x;
+        const maxx = (dst.x + dst.w);
+        const miny = dst.y;
+        const maxy = (dst.y + dst.h);
 
-        const z = (zIndex + 1) / 100;
-        
-        const minx = -1.0 + 2.0 * dst.x / camera.w;
-        const maxx = -1.0 + 2.0 * (dst.x + dst.w) / camera.w;
-        const miny = -1.0 + 2.0 * dst.y / camera.h;
-        const maxy = -1.0 + 2.0 * (dst.y + dst.h) / camera.h;
-
-        let minu = src.x / this.width;
-        let maxu = (src.x + src.w) / this.width;
-        const minv = src.y / this.height;
-        const maxv = (src.y + src.h) / this.height;
-
-        if (flip) {
-            const tmp = minu;
-            minu = maxu;
-            maxu = tmp;
-        }
+        const minu = flip ? (src.x + src.w) : src.x;
+        const maxu = flip ? src.x : (src.x + src.w);
+        const minv = src.y;
+        const maxv = (src.y + src.h);
         
         return [
-            minx, -miny, z, minu, minv,
-            maxx, -miny, z, maxu, minv,
-            minx, -maxy, z, minu, maxv,
+            minx, miny, z, minu, minv,
+            maxx, miny, z, maxu, minv,
+            minx, maxy, z, minu, maxv,
 
-            maxx, -miny, z, maxu, minv,
-            minx, -maxy, z, minu, maxv,
-            maxx, -maxy, z, maxu, maxv
+            maxx, miny, z, maxu, minv,
+            minx, maxy, z, minu, maxv,
+            maxx, maxy, z, maxu, maxv
         ];
     }
     
