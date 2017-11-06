@@ -1,8 +1,7 @@
 import { Texture } from './texture';
 import { Renderer, Renderable } from './renderer';
 import { Point, Rect } from './common';
-
-import { HttpClient } from '@angular/common/http';
+import { Resources } from './resources';
 
 enum Command
 {
@@ -36,9 +35,9 @@ export class Costume implements Renderable {
     public rect: Rect = new Rect(0, 0, 0, 0);
 
     private speed: number;
-    private frames: {[key: number]: {[limbId: number]: Frame}} = {};
-    private animations: {[animId: number]: {[limbId: number]: Limb}} = {};
-    private currentAnimation: {[limbId: number]: Limb} = {};
+    private frames: {[key: string]: {[limbId: string]: Frame}} = {};
+    private animations: {[animId: string]: {[limbId: string]: Limb}} = {};
+    private currentAnimation: {[limbId: string]: Limb} = {};
     private currentFrames: Frame[] = [];
     private pos: Point = new Point(0, 0);
     private z: number;
@@ -50,9 +49,9 @@ export class Costume implements Renderable {
 
     constructor(private name: string) { }
 
-    private loadFrames(frames) {
+    private loadFrames(frames: any) {
         for (const key in frames) {
-            const limb = {};
+            const limb: {[key: string]: Frame} = {};
             this.frames[key] = limb;
             const limbData = frames[key];
             for (const limbKey in limbData) {
@@ -62,9 +61,9 @@ export class Costume implements Renderable {
         }
     }
 
-    private loadAnimations(animation) {
+    private loadAnimations(animation: any) {
         for (const animId in animation) {
-            const limbs = {};
+            const limbs: {[key: string]: Limb} = {};
             this.animations[animId] = limbs;
             // It's a 1 element array
             const animData = animation[animId][0];
@@ -142,11 +141,11 @@ export class Costume implements Renderable {
         ++this.numFrames;
     }
 
-    load(http: HttpClient, renderer: Renderer): Promise<any> {
+    load(resources: Resources, renderer: Renderer): Promise<any> {
         this.tex = renderer.newTexture();
         return Promise.all([
-            this.tex.fromImage(`assets/images/${this.name}.png`),
-            http.get<any>(`assets/jsons/${this.name}.json`).toPromise()
+            this.tex.fromImage(this.name),
+            resources.loadJson(this.name)
                 .then(({frames, animations}) => {
                     this.loadFrames(frames);
                     this.loadAnimations(animations); 
@@ -184,7 +183,7 @@ export class Costume implements Renderable {
     reset()
     {
         this.stopped = 0;
-        this.currentAnimation = [];
+        this.currentAnimation = {};
     }
 
     vertices(camera: Rect): number[] {

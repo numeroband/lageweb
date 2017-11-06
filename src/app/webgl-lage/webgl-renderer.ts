@@ -1,16 +1,12 @@
 import { VertexShader } from './vertex-shader';
 import { FragmentShader } from './fragment-shader';
-import { Texture } from './texture';
-import { Text } from './text';
-import { Font } from './font';
-import { Rect } from './common';
+import { LAGEWebGLTexture } from './webgl-texture';
 
-export interface Renderable {
-    readonly tex: Texture;
-    vertices(camera: Rect): number[];
-}
+import { Renderer, Renderable } from '../lage/renderer'
+import { Texture } from '../lage/texture'
+import { Rect } from '../lage/common';
 
-export class Renderer {
+export class LAGEWebGLRenderer implements Renderer {
     readonly VERTEX_ELEMENTS = 3 + 2;
 
     private program: WebGLProgram;
@@ -40,12 +36,8 @@ export class Renderer {
         this.gl.viewport(rect.x, rect.y, rect.w, rect.h);
     }
 
-    newTexture() {
-        return new Texture(this.gl);
-    }
-
-    newText() {
-        return new Text(this.gl);
+    newTexture(): Texture {
+        return new LAGEWebGLTexture(this.gl);
     }
 
     render(camera: Rect, obj: Renderable) {
@@ -57,7 +49,7 @@ export class Renderer {
             return;
         }
 
-        obj.tex.bind();
+        (<LAGEWebGLTexture>obj.tex).bind();
 
         gl.activeTexture(gl.TEXTURE0);        
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);

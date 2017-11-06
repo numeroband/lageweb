@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { Resources } from './resources';
 import { Renderer } from './renderer';
 import { Texture } from './texture';
 import { Room } from './room';
@@ -21,20 +21,20 @@ export class Engine {
     private costume: Costume;
     private costumePos: Point = new Point(80, 80);
     
-    constructor(private renderer: Renderer, private http: HttpClient, resolution: Point) {
+    constructor(private renderer: Renderer, private resources: Resources, resolution: Point) {
         this.fixedCamera = new Rect(0, 0, resolution.x, resolution.y);        
         this.camera = new Rect(0, 0, resolution.x, resolution.y);
     }
   
-    private createRoom(roomName) {
-      this.room = new Room(roomName);
-      return this.room.load(this.http, this.renderer);
+    private createRoom(roomName: string) {
+        this.room = new Room(roomName);
+        return this.room.load(this.resources, this.renderer);
     }
   
     private createCursor() {
       const tex = this.renderer.newTexture();
       this.cursor = new Cursor(tex);
-      return tex.fromImage('assets/images/cursor.png');
+      return tex.fromImage('cursor');
     }
   
     private createFont(name: string) {
@@ -45,13 +45,13 @@ export class Engine {
         this.fonts[name] = font;
       }
   
-      return font.load(this.http);
+      return font.load(this.resources);
     }
   
     init(): Promise<any> {
       this.texts = [
-        this.renderer.newText(),
-        this.renderer.newText(),
+        new Text(this.renderer.newTexture()),
+        new Text(this.renderer.newTexture()),
       ];
   
       return Promise.all([
@@ -61,12 +61,10 @@ export class Engine {
         this.createFont('Atlantis_65_Charset01'),
       ]).then(() => {
         this.texts[0].setText('Hello world!!!', this.fonts['Atlantis_65_Charset00']);
-        this.texts[0].pos.x = 100;
-        this.texts[0].pos.y = 100;
+        this.texts[0].pos = new Point(100, 100);
     
         this.texts[1].setText('Hello again$$%%', this.fonts['Atlantis_65_Charset01']);
-        this.texts[1].pos.x = 150;
-        this.texts[1].pos.y = 50;
+        this.texts[1].pos = new Point(150, 50);
 
         this.costume = this.room.costumes['Atlantis_00_Cost03'];  
         this.costume.setAnimation(4, false);
@@ -83,20 +81,14 @@ export class Engine {
         }
     }
     
-    tick() { 
-        this.update();
-        this.render();        
-    }
-
-    private render() {
-        this.renderer.clear();
+    render() {
         this.renderer.render(this.camera, this.room);
         this.texts.forEach(text => this.renderer.render(this.fixedCamera, text));
         this.renderer.render(this.fixedCamera, this.cursor);  
         this.renderer.render(this.camera, this.costume);
     }
 
-    private update() {
+    update() {
         if (this.mouse.x > this.fixedCamera.w * 0.8 && this.camera.x < 300) {
             this.camera.x++;
         }

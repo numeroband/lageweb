@@ -1,4 +1,5 @@
-import { HttpClient } from '@angular/common/http'
+import { Resources } from './resources'
+import { Texture } from './texture'
 
 class FontChar {
     readonly x: number;
@@ -8,7 +9,7 @@ class FontChar {
 
     private char: number[][];
 
-    constructor({char, offset, size}) {
+    constructor({char, offset, size}: {char: number[][], offset: number[], size: number[]}) {
         this.char = char;
         this.x = offset[0];
         this.y = offset[1];
@@ -16,21 +17,14 @@ class FontChar {
         this.height = size[1];        
     }
 
-    render(colors: number[][], pixels: Uint8Array, stride: number,
-        startX: number, startY: number, color?: number[]) {
-
-        const lineX = startX * 4 + this.x * 4;
-        for (let i = 0; i < this.height; ++i) {
-            const lineY = startY + this.y + i;
-            const lineStart = lineY * 4 * stride + lineX;
-            this.char[i].forEach((colorIdx, idx) => {
+    render(colors: (number[]|null)[], tex: Texture, startX: number, startY: number, color?: number[]) {
+        for (let y = 0; y < this.height; ++y) {
+            this.char[y].forEach((colorIdx, x) => {
                 const colorOutput = ((color && colorIdx == 1) ? color : colors[colorIdx]);
-                if (!colorOutput) {
-                    return;
+                if (colorOutput) {
+                    tex.setColor(startX + this.x + x, startY + this.y + y, 
+                        colorOutput[0], colorOutput[1], colorOutput[2], colorOutput[3]);
                 }
-                colorOutput.forEach((col, i) => {
-                    pixels[lineStart + (colorOutput.length * idx) + i] = col;                    
-                });
             });            
         }
     }
@@ -38,31 +32,31 @@ class FontChar {
 
 export class Font {
     private height: number;
-    private colors: number[][];
-    private chars: {[key: number]: FontChar};
+    private colors: (number[]|null)[];
+    private chars: {[key: string]: FontChar};
     
     constructor(readonly name: string) { }
     
-    private createCharset({height, colors, chars}) {
+    private createCharset({height, colors, chars}: {height: number, colors: number[][], chars: any}) {
         this.height = height;
-        this.colors = [null].concat(colors.map(color => [color[0], color[1], color[2], 255]));
+        this.colors = [null];
+        this.colors = this.colors.concat(colors.map(color => [color[0], color[1], color[2], 255]));
         this.chars = {};
         for (const c in chars) {
             this.chars[c] = new FontChar(chars[c]);
         }
     }
 
-    load(http: HttpClient): Promise<void> {
+    load(resources: Resources): Promise<void> {
         if (this.chars) {
             return Promise.resolve();
         }
         
-        return http.get<any>(`assets/fonts/${this.name}.json`).toPromise()
+        return resources.loadFont(this.name)
             .then(charset => this.createCharset(charset));
     }
 
-    getTextRect(text: string): {x: number, y: number, width:number, height: number}
-    {
+    getTextRect(text: string): {x: number, y: number, width:number, height: number} {
         let minX = 0;
         let minY = 0;
         let maxW = 0;
@@ -97,10 +91,10 @@ export class Font {
         return {x: minX, y: minY, width: maxW - minX, height: maxH - minY};
     }
 
-    render(text: string, pixels: Uint8Array, stride: number, x: number, y: number, color?: number[]) {
+    render(text: string, tex: Texture, x: number, y: number, color?: number[]) {
         for (let i = 0; i < text.length; ++i) {
             const char: FontChar = this.chars[text.charCodeAt(i)];
-            char.render(this.colors, pixels, stride, x, y, color);
+            char.render(this.colors, tex, x, y, color);
             x += char.x + char.width;
         }
     }

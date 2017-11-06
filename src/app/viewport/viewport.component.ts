@@ -1,9 +1,22 @@
 import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Renderer } from './lage/renderer';
-import { Engine } from './lage/engine';
-import { Point, Rect } from './lage/common';
+import { LAGEWebGLRenderer } from '../webgl-lage/webgl-renderer';
+import { Engine } from '../lage/engine';
+import { Resources } from '../lage/resources';
+import { Point, Rect } from '../lage/common';
+
+class HttpResources implements Resources {
+  constructor(private http: HttpClient) { }
+
+  loadJson(name: string): Promise<any> {
+    return this.http.get<any>(`assets/jsons/${name}.json`).toPromise();
+  }  
+
+  loadFont(name: string): Promise<any> {
+    return this.http.get<any>(`assets/fonts/${name}.json`).toPromise();
+  }  
+}
 
 @Component({
   selector: 'app-viewport',
@@ -14,7 +27,7 @@ export class ViewportComponent implements OnInit {
 
   @ViewChild('vpCanvas') canvasRef: ElementRef;
   private running: boolean;
-  private renderer: Renderer;
+  private renderer: LAGEWebGLRenderer;
   private engine: Engine;
   private frames: number = 0;
   private lastTimestamp: number = Date.now();
@@ -28,9 +41,9 @@ export class ViewportComponent implements OnInit {
     this.canvasRef.nativeElement.addEventListener("mousemove", (event) => this.mouseMove(event, false));    
     this.canvasRef.nativeElement.addEventListener("mousedown", (event) => this.mouseMove(event, true));    
     this.canvasRef.nativeElement.addEventListener("contextmenu", (event) => event.preventDefault());    
-    this.renderer = new Renderer(gl);
+    this.renderer = new LAGEWebGLRenderer(gl);
     this.renderer.viewport = new Rect(0, 0, gl.canvas.width, gl.canvas.height);
-    this.engine = new Engine(this.renderer, this.http, this.resolution);
+    this.engine = new Engine(this.renderer, new HttpResources(this.http), this.resolution);
     this.engine.init().then(() => {
       this.running = true;
       this.ngZone.runOutsideAngular(() => requestAnimationFrame(() => this.tick()));  
@@ -49,8 +62,10 @@ export class ViewportComponent implements OnInit {
       return;
     }
 
-    this.engine.tick();
-
+    this.engine.update();
+    this.renderer.clear();
+    this.engine.render();
+    
     if (++this.frames % 500 == 0) {
       const now = Date.now();
       console.log(`Frame rate: ${500000 / (now - this.lastTimestamp)} fps`);

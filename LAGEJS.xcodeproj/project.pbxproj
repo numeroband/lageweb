@@ -1,0 +1,371 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EDD64ED61FAF7F340090184C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD64ED51FAF7F340090184C /* AppDelegate.m */; };
+		EDD64ED91FAF7F340090184C /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD64ED81FAF7F340090184C /* Renderer.m */; };
+		EDD64EDC1FAF7F340090184C /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD64EDB1FAF7F340090184C /* GameViewController.m */; };
+		EDD64EDE1FAF7F340090184C /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = EDD64EDD1FAF7F340090184C /* Shaders.metal */; };
+		EDD64EE11FAF7F340090184C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EDD64EE01FAF7F340090184C /* Assets.xcassets */; };
+		EDD64EE41FAF7F340090184C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EDD64EE21FAF7F340090184C /* Main.storyboard */; };
+		EDD64EE71FAF7F340090184C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD64EE61FAF7F340090184C /* main.m */; };
+		EDD64EF21FAFA0390090184C /* Texture.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD64EF11FAFA0390090184C /* Texture.m */; };
+		EDD64EF81FAFA1DF0090184C /* Resources.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD64EF71FAFA1DF0090184C /* Resources.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		EDD64ED11FAF7F340090184C /* LAGEJS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LAGEJS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EDD64ED41FAF7F340090184C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		EDD64ED51FAF7F340090184C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		EDD64ED71FAF7F340090184C /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
+		EDD64ED81FAF7F340090184C /* Renderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Renderer.m; sourceTree = "<group>"; };
+		EDD64EDA1FAF7F340090184C /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
+		EDD64EDB1FAF7F340090184C /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
+		EDD64EDD1FAF7F340090184C /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		EDD64EDF1FAF7F340090184C /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
+		EDD64EE01FAF7F340090184C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EDD64EE31FAF7F340090184C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		EDD64EE51FAF7F340090184C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EDD64EE61FAF7F340090184C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EDD64EE81FAF7F340090184C /* LAGEJS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LAGEJS.entitlements; sourceTree = "<group>"; };
+		EDD64EEF1FAF85CB0090184C /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		EDD64EF01FAFA0390090184C /* Texture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
+		EDD64EF11FAFA0390090184C /* Texture.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Texture.m; sourceTree = "<group>"; };
+		EDD64EF61FAFA1DF0090184C /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Resources.h; sourceTree = "<group>"; };
+		EDD64EF71FAFA1DF0090184C /* Resources.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Resources.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EDD64ECE1FAF7F340090184C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EDD64EC81FAF7F330090184C = {
+			isa = PBXGroup;
+			children = (
+				EDD64ED31FAF7F340090184C /* LAGEJS */,
+				EDD64ED21FAF7F340090184C /* Products */,
+				EDD64EEE1FAF85CB0090184C /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		EDD64ED21FAF7F340090184C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EDD64ED11FAF7F340090184C /* LAGEJS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EDD64ED31FAF7F340090184C /* LAGEJS */ = {
+			isa = PBXGroup;
+			children = (
+				EDD64ED41FAF7F340090184C /* AppDelegate.h */,
+				EDD64ED51FAF7F340090184C /* AppDelegate.m */,
+				EDD64ED71FAF7F340090184C /* Renderer.h */,
+				EDD64ED81FAF7F340090184C /* Renderer.m */,
+				EDD64EF01FAFA0390090184C /* Texture.h */,
+				EDD64EF11FAFA0390090184C /* Texture.m */,
+				EDD64EF61FAFA1DF0090184C /* Resources.h */,
+				EDD64EF71FAFA1DF0090184C /* Resources.m */,
+				EDD64EDA1FAF7F340090184C /* GameViewController.h */,
+				EDD64EDB1FAF7F340090184C /* GameViewController.m */,
+				EDD64EDD1FAF7F340090184C /* Shaders.metal */,
+				EDD64EDF1FAF7F340090184C /* ShaderTypes.h */,
+				EDD64EE01FAF7F340090184C /* Assets.xcassets */,
+				EDD64EE21FAF7F340090184C /* Main.storyboard */,
+				EDD64EE51FAF7F340090184C /* Info.plist */,
+				EDD64EE61FAF7F340090184C /* main.m */,
+				EDD64EE81FAF7F340090184C /* LAGEJS.entitlements */,
+			);
+			path = LAGEJS;
+			sourceTree = "<group>";
+		};
+		EDD64EEE1FAF85CB0090184C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EDD64EEF1FAF85CB0090184C /* JavaScriptCore.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EDD64ED01FAF7F340090184C /* LAGEJS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EDD64EEB1FAF7F340090184C /* Build configuration list for PBXNativeTarget "LAGEJS" */;
+			buildPhases = (
+				EDD64ECD1FAF7F340090184C /* Sources */,
+				EDD64ECE1FAF7F340090184C /* Frameworks */,
+				EDD64ECF1FAF7F340090184C /* Resources */,
+				EDD64EF91FAFB9C10090184C /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LAGEJS;
+			productName = LAGEJS;
+			productReference = EDD64ED11FAF7F340090184C /* LAGEJS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EDD64EC91FAF7F330090184C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0900;
+				ORGANIZATIONNAME = "Lorenzo Soto Doblado";
+				TargetAttributes = {
+					EDD64ED01FAF7F340090184C = {
+						CreatedOnToolsVersion = 9.0.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = EDD64ECC1FAF7F330090184C /* Build configuration list for PBXProject "LAGEJS" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EDD64EC81FAF7F330090184C;
+			productRefGroup = EDD64ED21FAF7F340090184C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EDD64ED01FAF7F340090184C /* LAGEJS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EDD64ECF1FAF7F340090184C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDD64EE11FAF7F340090184C /* Assets.xcassets in Resources */,
+				EDD64EE41FAF7F340090184C /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		EDD64EF91FAFB9C10090184C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\n\nexport PATH=$PATH:~/node-v6.11.4-darwin-x64/bin\n\n# save working directory\nWORKING_DIR=$(pwd)\n# temporarily switch to the JavaScript dir so we can run `nvm` and `npm` stuff\ncd $SRCROOT\n# install dependencies\n[ -d node_modules ] || npm install\n# compile the JavaScript bundle\nTSC=\"$(pwd)/node_modules/.bin/tsc\"\n$TSC -p xcode-tsconfig.json --outFile /tmp/lage_main.js\n# generate JavaScript bundle\nRJS=\"$(pwd)/node_modules/.bin/r.js\"\n$RJS -o name=$(pwd)/node_modules/almond/almond.js include=/tmp/lage_main.js optimize=none out=\"${CONFIGURATION_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/scripts/main.js\"\n\n# copy assets\nditto src/assets/ \"${CONFIGURATION_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\n                 \n# go back to the working directory\ncd $WORKING_DIR\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EDD64ECD1FAF7F340090184C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EDD64EE71FAF7F340090184C /* main.m in Sources */,
+				EDD64EF81FAFA1DF0090184C /* Resources.m in Sources */,
+				EDD64EDE1FAF7F340090184C /* Shaders.metal in Sources */,
+				EDD64ED91FAF7F340090184C /* Renderer.m in Sources */,
+				EDD64EF21FAFA0390090184C /* Texture.m in Sources */,
+				EDD64EDC1FAF7F340090184C /* GameViewController.m in Sources */,
+				EDD64ED61FAF7F340090184C /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		EDD64EE21FAF7F340090184C /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EDD64EE31FAF7F340090184C /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		EDD64EE91FAF7F340090184C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		EDD64EEA1FAF7F340090184C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		EDD64EEC1FAF7F340090184C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LAGEJS/LAGEJS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4LK2E2CX5Q;
+				INFOPLIST_FILE = LAGEJS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.soto.lorenzo.LAGEJS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EDD64EED1FAF7F340090184C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LAGEJS/LAGEJS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4LK2E2CX5Q;
+				INFOPLIST_FILE = LAGEJS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.soto.lorenzo.LAGEJS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EDD64ECC1FAF7F330090184C /* Build configuration list for PBXProject "LAGEJS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EDD64EE91FAF7F340090184C /* Debug */,
+				EDD64EEA1FAF7F340090184C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EDD64EEB1FAF7F340090184C /* Build configuration list for PBXNativeTarget "LAGEJS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EDD64EEC1FAF7F340090184C /* Debug */,
+				EDD64EED1FAF7F340090184C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EDD64EC91FAF7F330090184C /* Project object */;
+}

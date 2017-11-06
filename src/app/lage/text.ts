@@ -1,25 +1,27 @@
-
 import { Renderable} from './renderer';
 import { Texture } from './texture';
 import { Font } from './font';
 import { Point, Rect } from './common';
 
 export class Text implements Renderable {
-    public pos: Point = new Point(0, 0);
-    readonly tex: Texture;
+    public pos: Point;
 
     private text: string;
     private font: Font;
+    private offset: Point = new Point(0, 0);
 
-    constructor(private gl: WebGLRenderingContext) { 
-        this.tex = new Texture(gl);
-    }
+    constructor(readonly tex: Texture) { }
 
     setText(text: string, font: Font, color?: number[]) {
         if (this.text === text && font.name === this.font.name) {
             return;
         }
-        this.tex.fromText(font, text, color);
+        const {x, y, width, height} = font.getTextRect(text);
+        this.tex.newSurface(width, height);
+        font.render(text, this.tex, -x, -y, color);
+        this.tex.fromSurface();
+        this.offset.x = x;
+        this.offset.y = y;
         this.text = text;
         this.font = font;
     }
@@ -30,6 +32,8 @@ export class Text implements Renderable {
         }
 
         return this.tex.vertices(camera, 98, new Rect(0, 0, this.tex.width, this.tex.height),
-            new Rect(this.pos.x, this.pos.y, this.tex.width, this.tex.height));
+            new Rect(this.pos.x + this.offset.x, this.pos.y + this.offset.y, this.tex.width, this.tex.height));
     }
+
+
 }    

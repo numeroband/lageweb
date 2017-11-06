@@ -7,16 +7,16 @@ export class Objeto implements Renderable {
 
     constructor(readonly tex: Texture, 
         readonly name: string,
-        private images: {[key: number]: number[]}[],
+        private images: {[key: string]: number[]}[],
         private rect: number[]) { }
     
-    vertices(camera: Rect) {
-        const layers = this.state < 1 ? [] : this.images[this.state - 1];
+    vertices(camera: Rect): number[] {
+        const layers = this.state < 1 ? {} : this.images[this.state - 1];
         if (!layers) {
             return [];
         }
 
-        let vertices = [];
+        let vertices: number[] = [];
         Object.keys(layers).forEach((layer) => {
             const img = layers[layer];
             const objVertices = this.tex.vertices(camera, Number(layer), new Rect(img[0], img[1], img[2], img[3]), 

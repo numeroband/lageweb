@@ -1,24 +1,26 @@
-import { Point, Rect } from './common';
-import { Font } from './font';
+import { Point, Rect } from '../lage/common';
+import { Font } from '../lage/font';
+import { Texture } from '../lage/texture';
 
-export class Texture {
+export class LAGEWebGLTexture implements Texture {
     public width: number;
     public height: number;
+    
+    private offset: Point = new Point(0, 0);
     private tex: WebGLTexture;
     private img: HTMLImageElement;
-    private offset: Point = new Point(0, 0);
+    private surface: Uint8Array;
     
     constructor(private gl: WebGLRenderingContext) { }
     
-    private createTexture(bytes?: Uint8Array, width?: number, height?: number) {
+    private createTexture() {
         const gl = this.gl;
         this.tex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.tex);
 
-        if (bytes) {
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, bytes);
-            this.width = width;
-            this.height = height;
+        if (this.surface) {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.surface);
+            this.surface = undefined;
         } else {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.img);
             this.width = this.img.width;
@@ -33,10 +35,10 @@ export class Texture {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
 
-    fromImage(url: string): Promise<void> {
+    fromImage(name: string): Promise<void> {
         this.img = new Image();
         return new Promise<void>((resolve, reject) => {
-            this.img.src = url;
+            this.img.src = `assets/images/${name}.png`;
             this.img.addEventListener('load', () => {
                 this.createTexture();
                 resolve();
@@ -70,15 +72,24 @@ export class Texture {
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
     }
 
-    fromText(font: Font, text: string, color?: number[])
-    {
-        const {x, y, width, height} = font.getTextRect(text);
-        const pixels = new Uint8Array(4 * width * height);
-        pixels.fill(0);
-        font.render(text, pixels, width, -x, -y, color);
-        this.createTexture(pixels, width, height);
-        this.offset.x = x;
-        this.offset.y = y;
+    newSurface(width: number, height: number): void {
+        this.surface = new Uint8Array(width * height * 4);
+        this.surface.fill(0);
+        this.width = width;
+        this.height = height;
     }
-    
+
+    setColor(x: number, y: number, r: number, g: number, b: number, a: number): void {
+        const start = 4 * (this.width * y + x);
+        this.surface[start + 0] = r;
+        this.surface[start + 1] = g;
+        this.surface[start + 2] = b;
+        this.surface[start + 3] = a;        
+    }
+
+    fromSurface(): void {
+        if (this.surface) {
+            this.createTexture();
+        }
+    }
 }
