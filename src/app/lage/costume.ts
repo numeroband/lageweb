@@ -217,7 +217,7 @@ export class Costume implements Renderable {
             limbPos.h = rect.h * this.scale;
             
             //this.texture->setColor(this.light, this.light, this.light);
-            ret.push(...this.tex.vertices(camera, this.z, rect, limbPos, this.flip));
+            ret.push(...this.tex.vertices(camera, (this.z * 2) + 1, rect, limbPos, this.flip));
         }
 
         return ret;

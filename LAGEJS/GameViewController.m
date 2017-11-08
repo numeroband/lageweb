@@ -36,6 +36,47 @@
     [_renderer mtkView:_view drawableSizeWillChange:_view.bounds.size];
 
     _view.delegate = _renderer;
+    
+    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:_view.visibleRect
+                                                                options: (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow )
+                                                                  owner:self userInfo:nil];
+    [_view addTrackingArea:trackingArea];
 }
+
+- (BOOL)acceptsFirstResponder
+{
+    return YES;
+}
+
+- (void)mouseDown:(NSEvent *)event
+{
+    [_renderer mouseMoved:event
+                leftClick:YES
+               rightClick:NO];
+}
+
+- (void)rightMouseDown:(NSEvent *)event
+{
+    [_renderer mouseMoved:event
+                leftClick:NO
+               rightClick:YES];
+}
+
+- (void)mouseMoved:(NSEvent *)event
+{
+    [_renderer mouseMoved:event
+                leftClick:NO
+               rightClick:NO];
+}
+
+- (void)mouseEntered:(NSEvent *)event
+{
+    [NSCursor hide];
+}
+- (void)mouseExited:(NSEvent *)event
+{
+    [NSCursor unhide];
+}
+
 
 @end

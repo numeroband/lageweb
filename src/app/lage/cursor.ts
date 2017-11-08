@@ -33,7 +33,7 @@ export class Cursor implements Renderable {
         const texY = 0;
         this.frame = (this.frame + 1) % ((NUM_FRAMES + REPEAT_FIRST) * TICKS_PER_FRAME);
 
-        return this.tex.vertices(camera, 99, new Rect(texX, texY, frameSize, frameSize), 
+        return this.tex.vertices(camera, 98, new Rect(texX, texY, frameSize, frameSize), 
                 new Rect(this.pos.x, this.pos.y, frameSize, frameSize));
     }    
 }    

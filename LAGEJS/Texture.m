@@ -11,7 +11,6 @@
 
 @interface Texture()
 @property (nonatomic) id<MTLDevice> device;
-@property (nonatomic) id<MTLTexture> texture;
 @property (nonatomic) NSMutableData *surface;
 @end
 

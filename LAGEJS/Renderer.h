@@ -27,6 +27,9 @@ JSExportAs(render,
 @interface Renderer : NSObject <MTKViewDelegate, JSRenderer>
 
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
+- (void)mouseMoved:(nonnull NSEvent*)event
+         leftClick:(BOOL)leftClick
+        rightClick:(BOOL)rightClick;
 
 @end
 

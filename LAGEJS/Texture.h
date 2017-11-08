@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <JavaScriptCore/JavaScriptCore.h>
 
+@protocol MTLTexture;
+
 @protocol TextureExport <JSExport>
 @property (nonatomic) NSUInteger width;
 @property (nonatomic) NSUInteger height;
@@ -40,6 +42,7 @@ JSExportAs(vertices,
 @interface Texture : NSObject<TextureExport>
 @property (nonatomic) NSUInteger width;
 @property (nonatomic) NSUInteger height;
+@property (nonatomic) id<MTLTexture> texture;
 
 - (instancetype)initWithDevice:(id<MTLDevice>)device;
 
