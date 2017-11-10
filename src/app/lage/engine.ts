@@ -5,11 +5,12 @@ import { Room } from './room';
 import { Cursor } from './cursor';
 import { Font } from './font';
 import { Text } from './text';
-import { Costume } from './costume';
 import { Point, Rect } from './common';
 
-export class Engine {
-    private room: Room;
+export abstract class Engine {
+    readonly resolution: Point;
+
+    private room: Room | undefined;
     private frames: number = 0;
     private lastTimestamp: number = Date.now();
     private mouse: Point = new Point(0, 0);
@@ -18,19 +19,17 @@ export class Engine {
     private texts: Text[];
     private camera: Rect;
     private fixedCamera: Rect;
-    private costume: Costume;
-    private costumePos: Point = new Point(80, 80);
     
-    constructor(private renderer: Renderer, private resources: Resources, resolution: Point) {
-        this.fixedCamera = new Rect(0, 0, resolution.x, resolution.y);        
-        this.camera = new Rect(0, 0, resolution.x, resolution.y);
+    constructor(private renderer: Renderer, private resources: Resources) {
+        this.resolution = this.createResolution();
+        this.fixedCamera = new Rect(0, 0, this.resolution.x, this.resolution.y);        
+        this.camera = new Rect(0, 0, this.resolution.x, this.resolution.y);
     }
   
-    private createRoom(roomName: string) {
-        this.room = new Room(roomName);
-        return this.room.load(this.resources, this.renderer);
-    }
-  
+    protected abstract newRoom(name: string): Room;
+    protected abstract createResolution(): Point;
+    protected abstract didInit(): Promise<any>;
+    
     private createCursor() {
       const tex = this.renderer.newTexture();
       this.cursor = new Cursor(tex);
@@ -48,47 +47,51 @@ export class Engine {
       return font.load(this.resources);
     }
   
-    init(): Promise<any> {
-      this.texts = [
-        new Text(this.renderer.newTexture()),
-        new Text(this.renderer.newTexture()),
-      ];
-  
-      return Promise.all([
-        this.createRoom('Atlantis_09'),
+    init(): Promise<void> {
+        this.texts = [
+            new Text(this.renderer.newTexture()),
+            new Text(this.renderer.newTexture()),
+        ];
+
+        return Promise.all([
         this.createCursor(),
         this.createFont('Atlantis_65_Charset00'),
         this.createFont('Atlantis_65_Charset01'),
-      ]).then(() => {
-        this.texts[0].setText('Hello world!!!', this.fonts['Atlantis_65_Charset00']);
-        this.texts[0].pos = new Point(100, 100);
-    
-        this.texts[1].setText('Hello again$$%%', this.fonts['Atlantis_65_Charset01']);
-        this.texts[1].pos = new Point(150, 50);
+        ]).then(() => {
+            this.texts[0].setText('Hello world!!!', this.fonts['Atlantis_65_Charset00']);
+            this.texts[0].pos = new Point(100, 100);
 
-        this.costume = this.room.costumes['Atlantis_00_Cost03'];  
-        this.costume.setAnimation(4, false);
-        this.costume.setAnimation(8, false);
-    });
+            this.texts[1].setText('Hello again$$%%', this.fonts['Atlantis_65_Charset01']);
+            this.texts[1].pos = new Point(150, 50);
+
+            return this.didInit();
+        });
     }
   
     mouseMove(mouse: Point, down: boolean) {
         this.mouse = mouse;
         this.cursor.update(mouse);
-        if (down) {
-            this.costumePos.x = mouse.x + this.camera.x;
-            this.costumePos.y = mouse.y + this.camera.y;
+        if (down && this.room) {
+            this.room.currentActor.setPosition(mouse);
         }
     }
     
     render() {
+        if (!this.room) {
+            return;
+        }
+
         this.renderer.render(this.camera, this.room);
         this.texts.forEach(text => this.renderer.render(this.fixedCamera, text));
-        this.renderer.render(this.fixedCamera, this.cursor);  
-        this.renderer.render(this.camera, this.costume);
+        this.renderer.render(this.fixedCamera, this.cursor);
+        this.room.actors.forEach(actor => this.renderer.render(this.camera, actor));
     }
 
     update() {
+        if (!this.room) {
+            return;
+        }
+
         if (this.mouse.x > this.fixedCamera.w * 0.8 && this.camera.x < 300) {
             this.camera.x++;
         }
@@ -97,6 +100,15 @@ export class Engine {
             this.camera.x--;
         }  
 
-        this.costume.update(this.costumePos, 2, 1.0, 255);
+        this.room.actors.forEach(actor => actor.update());
+    }
+
+    enterRoom(name: string): Promise<void> {
+        this.room = undefined;
+        const newRoom = this.newRoom(name);
+        return newRoom.load(this.resources, this.renderer)
+            .then(() => {
+                this.room = newRoom;
+            });
     }
 }  

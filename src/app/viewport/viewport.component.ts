@@ -6,6 +6,8 @@ import { Engine } from '../lage/engine';
 import { Resources } from '../lage/resources';
 import { Point, Rect } from '../lage/common';
 
+import { Santa } from '../santa/santa';
+
 class HttpResources implements Resources {
   constructor(private http: HttpClient) { }
 
@@ -31,7 +33,6 @@ export class ViewportComponent implements OnInit {
   private engine: Engine;
   private frames: number = 0;
   private lastTimestamp: number = Date.now();
-  private resolution: Point = new Point(320, 200);
   
   constructor(private ngZone: NgZone, private http: HttpClient) { }
 
@@ -43,7 +44,7 @@ export class ViewportComponent implements OnInit {
     this.canvasRef.nativeElement.addEventListener("contextmenu", (event) => event.preventDefault());    
     this.renderer = new LAGEWebGLRenderer(gl);
     this.renderer.viewport = new Rect(0, 0, gl.canvas.width, gl.canvas.height);
-    this.engine = new Engine(this.renderer, new HttpResources(this.http), this.resolution);
+    this.engine = new Santa(this.renderer, new HttpResources(this.http));
     this.engine.init().then(() => {
       this.running = true;
       this.ngZone.runOutsideAngular(() => requestAnimationFrame(() => this.tick()));  
@@ -52,8 +53,8 @@ export class ViewportComponent implements OnInit {
 
   mouseMove(event, down) {
     const rect = event.target.getBoundingClientRect();
-    const x = Math.floor((event.clientX - rect.left - 1) * this.resolution.x / rect.width);
-    const y = Math.floor((event.clientY - rect.top - 1) * this.resolution.y / rect.height);
+    const x = Math.floor((event.clientX - rect.left - 1) * this.engine.resolution.x / rect.width);
+    const y = Math.floor((event.clientY - rect.top - 1) * this.engine.resolution.y / rect.height);
     this.engine.mouseMove(new Point(x, y), down); 
   }
   

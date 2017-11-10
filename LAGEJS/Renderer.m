@@ -71,10 +71,10 @@ static const NSUInteger kMaxBuffersInFlight = 3;
     [context evaluateScript:mainJsText withSourceURL:mainJsUrl];
     
     // calling a JavaScript function
-    JSValue *engineModule = [context[@"require"] callWithArguments:@[@"engine"]];
+    JSValue *engineModule = [context[@"require"] callWithArguments:@[@"santa/santa"]];
     Resources *resources = [[Resources alloc] init];
     NSDictionary *resolution = @{@"x": @(_resolution.x), @"y": @(_resolution.y)};
-    _engine = [engineModule[@"Engine"] constructWithArguments:@[self,
+    _engine = [engineModule[@"Santa"] constructWithArguments:@[self,
                                                                 resources,
                                                                 resolution]];
     [_engine invokeMethod:@"init" withArguments:nil];
