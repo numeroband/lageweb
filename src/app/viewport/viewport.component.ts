@@ -12,11 +12,7 @@ class HttpResources implements Resources {
   constructor(private http: HttpClient) { }
 
   loadJson(name: string): Promise<any> {
-    return this.http.get<any>(`assets/jsons/${name}.json`).toPromise();
-  }  
-
-  loadFont(name: string): Promise<any> {
-    return this.http.get<any>(`assets/fonts/${name}.json`).toPromise();
+    return this.http.get<any>(`scumm/${name}.json`).toPromise();
   }  
 }
 

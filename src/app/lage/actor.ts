@@ -3,8 +3,9 @@ import { Text } from './text';
 import { Costume } from './costume';
 import { Room } from './room';
 import { Box } from './box';
-import { Renderable } from './renderer';
+import { Renderer } from './renderer';
 import { Texture } from './texture';
+import { Engine } from './engine';
 
 export enum Direction
 {
@@ -25,7 +26,7 @@ export enum Animation
     TalkStop = 20,
 };
 
-export class Actor implements Renderable {
+export class Actor {
     private framesPerPixel: Point;
     private walkFrame: number;
     private walkNumFrames: number = 0;
@@ -43,6 +44,9 @@ export class Actor implements Renderable {
     private talkStartAnimation: number = Animation.TalkStart;
     private talkStopAnimation: number = Animation.TalkStop;
     private textFramesPending: number = 0;
+    private talkResolve: (() => void) | undefined;
+    private talkReject: (() => void) | undefined;
+    private room: Room;
     // private std::function<void()> _exit;
     // private std::function<void(bool)> _arrived;
     // private std::function<void(bool)> _talked;
@@ -67,21 +71,37 @@ export class Actor implements Renderable {
         }        
     }
     
-    constructor(readonly name: string, private room: Room, private text: Text) { 
-        room.actors.push(this);
+    constructor(readonly name: string, private engine: Engine, private text: Text) { 
+        if (!engine.room) {
+            throw new Error('No room in engine');
+        }
+        this.room = engine.room;
+        this.room.actors.push(this);
     }
 
-    vertices(camera: Rect): number[] {
-        if (!this.currentCostume) {
-            return [];
+    render(renderer: Renderer, camera: Rect) {
+        if (this.currentCostume) {
+            this.currentCostume.render(renderer, camera);
         }
 
-        return this.currentCostume.vertices(camera);
+        if (this.textFramesPending > 0) {
+            this.text.render(renderer, camera);
+        }
     }
 
     update() {
         if (this.currentCostume) {
             this.currentCostume.update(this.pos, this.box.mask, this.box.getScale(this.pos.y), (this.pos.x % 256) / 255);
+        }
+
+        if (this.textFramesPending && --this.textFramesPending == 0) {
+            this.text.setText();
+            this.setAnimation(this.talkStopAnimation);
+            if (this.talkResolve) {
+                this.talkResolve();
+            }
+            this.talkResolve = undefined;
+            this.talkReject = undefined;
         }
     }
 
@@ -108,8 +128,7 @@ export class Actor implements Renderable {
         this.setAnimation(this.initAnimation);
     }
     
-    setAnimation(anim: Animation)
-    {
+    setAnimation(anim: Animation) {
         if (!this.currentCostume)
         {
             return;
@@ -117,4 +136,17 @@ export class Actor implements Renderable {
         
         this.currentCostume.setAnimation(anim + this.direction, this.direction == Direction.West);
     }    
+
+    say(text: string): Promise<void> {
+        this.text.setText(text, this.engine.talkFont());
+        this.textFramesPending = text.length * 6;
+        const rect = this.currentCostume.rect;
+        this.text.pos.x = rect.x - 10;
+        this.text.pos.y = rect.y - 10;
+        this.setAnimation(this.talkStartAnimation);
+        return new Promise<void>((resolve, reject) => {
+            this.talkResolve = resolve;
+            this.talkReject = reject;            
+        });
+    }  
 }

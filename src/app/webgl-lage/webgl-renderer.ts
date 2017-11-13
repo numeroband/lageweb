@@ -2,12 +2,14 @@ import { VertexShader } from './vertex-shader';
 import { FragmentShader } from './fragment-shader';
 import { LAGEWebGLTexture } from './webgl-texture';
 
-import { Renderer, Renderable } from '../lage/renderer'
+import { Renderer } from '../lage/renderer'
 import { Texture } from '../lage/texture'
 import { Rect } from '../lage/common';
 
+const VERTEX_ELEMENTS = 3 + 2;
+
 export class LAGEWebGLRenderer implements Renderer {
-    readonly VERTEX_ELEMENTS = 3 + 2;
+    public defaultCamera: Rect;
 
     private program: WebGLProgram;
     private positionLocation: number;
@@ -40,22 +42,25 @@ export class LAGEWebGLRenderer implements Renderer {
         return new LAGEWebGLTexture(this.gl);
     }
 
-    render(camera: Rect, obj: Renderable) {
+    render(tex: Texture, vertices: number[], camera?: Rect): void {
         const gl = this.gl;
-        const bytesPerElement = this.VERTEX_ELEMENTS * Float32Array.BYTES_PER_ELEMENT;
-        const triangles = obj.vertices(camera);
+        const bytesPerElement = VERTEX_ELEMENTS * Float32Array.BYTES_PER_ELEMENT;
 
-        if (triangles.length == 0) {
+        if (vertices.length == 0) {
             return;
         }
 
-        (<LAGEWebGLTexture>obj.tex).bind();
+        if (!camera) {
+            camera = this.defaultCamera;
+        }
+
+        (<LAGEWebGLTexture>tex).bind();
 
         gl.activeTexture(gl.TEXTURE0);        
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
         gl.uniform1i(this.textureLocation, 0);
         
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangles), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
         gl.vertexAttribPointer(this.positionLocation, 3, gl.FLOAT, false, 
             bytesPerElement, 0 * Float32Array.BYTES_PER_ELEMENT);
@@ -66,9 +71,9 @@ export class LAGEWebGLRenderer implements Renderer {
         gl.enableVertexAttribArray(this.texcoordLocation);        
 
         gl.uniform4fv(this.cameraLocation, new Float32Array([camera.x, camera.y, camera.w, camera.h]));
-        gl.uniform2fv(this.texrectLocation, new Float32Array([obj.tex.width, obj.tex.height]));
+        gl.uniform2fv(this.texrectLocation, new Float32Array([tex.width, tex.height]));
 
-        const numTriangles = triangles.length / this.VERTEX_ELEMENTS;
+        const numTriangles = vertices.length / VERTEX_ELEMENTS;
         gl.drawArrays(gl.TRIANGLES, 0, numTriangles);
     
     }

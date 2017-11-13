@@ -2,12 +2,9 @@ import { Texture } from './texture';
 import { Font } from './font';
 import { Rect } from './common';
 
-export interface Renderable {
-    readonly tex: Texture;
-    vertices(camera: Rect): number[];
-}
-
 export interface Renderer {
+    defaultCamera: Rect;
+    
     newTexture(): Texture;
-    render(camera: Rect, obj: Renderable): void;
+    render(tex: Texture, vertices: number[], camera?: Rect): void;
 }

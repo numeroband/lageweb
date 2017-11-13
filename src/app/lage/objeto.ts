@@ -1,8 +1,7 @@
 import { Rect } from './common';
-import { Renderable } from './renderer';
 import { Texture } from './texture';
 
-export class Objeto implements Renderable {
+export class Objeto {
     public state: number = 0;
 
     constructor(readonly tex: Texture, 
@@ -10,7 +9,7 @@ export class Objeto implements Renderable {
         private images: {[key: string]: number[]}[],
         private rect: number[]) { }
     
-    vertices(camera: Rect): number[] {
+    vertices(): number[] {
         const layers = this.state < 1 ? {} : this.images[this.state - 1];
         if (!layers) {
             return [];
@@ -19,7 +18,7 @@ export class Objeto implements Renderable {
         let vertices: number[] = [];
         Object.keys(layers).forEach((layer) => {
             const img = layers[layer];
-            const objVertices = this.tex.vertices(camera, Number(layer) * 2, new Rect(img[0], img[1], img[2], img[3]), 
+            const objVertices = this.tex.vertices(Number(layer) * 2, new Rect(img[0], img[1], img[2], img[3]), 
                 new Rect(this.rect[0], this.rect[1], this.rect[2], this.rect[3]));
             vertices.push(...objVertices);
         });

@@ -25,11 +25,13 @@ static const NSUInteger kMaxBuffersInFlight = 3;
     id <MTLCommandQueue> _commandQueue;
 
     id <MTLRenderPipelineState> _pipelineState;
+    id <MTLRenderPipelineState> _debugPipelineState;
     id <MTLDepthStencilState> _depthState;
     id <MTLRenderCommandEncoder> _renderEncoder;
     
     JSValue *_engine;
     NSPoint _resolution;
+    BOOL _debugEnabled;
 }
 
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
@@ -110,6 +112,21 @@ static const NSUInteger kMaxBuffersInFlight = 3;
     {
         NSLog(@"Failed to created pipeline state, error %@", error);
     }
+    
+    MTLRenderPipelineDescriptor *debugPipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    debugPipelineStateDescriptor.label = @"DebugPipeline";
+    debugPipelineStateDescriptor.sampleCount = view.sampleCount;
+    debugPipelineStateDescriptor.vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+    debugPipelineStateDescriptor.fragmentFunction =  [defaultLibrary newFunctionWithName:@"fragmentShader"];
+    debugPipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
+    debugPipelineStateDescriptor.depthAttachmentPixelFormat = view.depthStencilPixelFormat;
+    debugPipelineStateDescriptor.stencilAttachmentPixelFormat = view.depthStencilPixelFormat;
+    
+    _debugPipelineState = [_device newRenderPipelineStateWithDescriptor:debugPipelineStateDescriptor error:&error];
+    if (!_debugPipelineState)
+    {
+        NSLog(@"Failed to create debug pipeline state, error %@", error);
+    }
 
     MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
     depthStateDesc.depthCompareFunction = MTLCompareFunctionGreater;
@@ -146,10 +163,16 @@ static const NSUInteger kMaxBuffersInFlight = 3;
 
         [_renderEncoder pushDebugGroup:@"DrawScene"];
 
-        [_renderEncoder setRenderPipelineState:_pipelineState];
         [_renderEncoder setDepthStencilState:_depthState];
-
+        
+        [_renderEncoder setRenderPipelineState:_pipelineState];
         [_engine invokeMethod:@"render" withArguments:nil];
+        
+        if (_debugEnabled)
+        {
+            [_renderEncoder setRenderPipelineState:_debugPipelineState];
+            [_engine invokeMethod:@"debugRender" withArguments:nil];
+        }
 
         [_renderEncoder popDebugGroup];
 
@@ -174,12 +197,13 @@ static const NSUInteger kMaxBuffersInFlight = 3;
     return [[Texture alloc] initWithDevice:_device];
 }
 
-- (void)render:(NSDictionary<NSString*,NSNumber*>*_Nonnull)camera
-           obj:(JSValue*_Nonnull)obj
+- (void)render:(nonnull Texture*)tex
+      vertices:(nonnull NSArray<NSNumber*>*)vertices
+        camera:(nullable NSDictionary<NSString*,NSNumber*>*)camera
 {
-    Texture *tex = obj[@"tex"].toObject;
-    NSArray<NSNumber*> *vertices = [obj invokeMethod:@"vertices"
-                                       withArguments:@[camera]].toArray;
+    if (!camera) {
+        camera = _defaultCamera;
+    }
     
     Uniforms uniforms;
     uniforms.camera.x = camera[@"x"].floatValue;

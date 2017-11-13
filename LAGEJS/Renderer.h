@@ -15,17 +15,20 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnullability-completeness"
 @protocol JSRenderer <JSExport>
-- (Texture*_Nonnull)newTexture;
+@property (nonatomic) NSDictionary* defaultCamera;
+- (nonnull Texture*)newTexture;
 
 JSExportAs(render,
-- (void)render:(NSDictionary*_Nonnull)camera obj:(JSValue*_Nonnull)obj);
+- (void)render:(nonnull Texture*)tex
+      vertices:(nonnull NSArray<NSNumber*>*)vertices
+        camera:(nullable NSDictionary<NSString*,NSNumber*>*)camera);
 @end
 #pragma clang diagnostic pop
 
 // Our platform independent renderer class.   Implements the MTKViewDelegate protocol which
 //   allows it to accept per-frame update and drawable resize callbacks.
 @interface Renderer : NSObject <MTKViewDelegate, JSRenderer>
-
+@property (nonatomic, nonnull) NSDictionary* defaultCamera;
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
 - (void)mouseMoved:(nonnull NSEvent*)event
          leftClick:(BOOL)leftClick

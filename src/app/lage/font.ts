@@ -52,7 +52,7 @@ export class Font {
             return Promise.resolve();
         }
         
-        return resources.loadFont(this.name)
+        return resources.loadJson(this.name)
             .then(charset => this.createCharset(charset));
     }
 

@@ -32,8 +32,7 @@ JSExportAs(setColor,
 - (void)fromSurface;
 
 JSExportAs(vertices,
-- (NSArray<NSNumber*>*)vertices:(NSDictionary<NSString*,NSNumber*>*)camera
-                              z:(NSUInteger)z
+- (NSArray<NSNumber*>*)vertices:(NSUInteger)z
                             src:(NSDictionary<NSString*,NSNumber*>*)src
                             dst:(NSDictionary<NSString*,NSNumber*>*)dst
                            flip:(BOOL)flip);

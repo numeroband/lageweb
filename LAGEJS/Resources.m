@@ -10,12 +10,11 @@
 
 @implementation Resources
 
--(JSValue*)loadUrl:(NSString*)folder
-              name:(NSString*)name
+- (JSValue*)loadJson:(NSString*)name
 {
     NSURL *url = [[NSBundle mainBundle] URLForResource:name
                                          withExtension:@"json"
-                                          subdirectory:folder];
+                                          subdirectory:@"assets"];
     NSError *error;
     NSData *data = [NSData dataWithContentsOfURL:url
                                          options:0
@@ -27,16 +26,6 @@
 
     return [[JSContext currentContext][@"Promise"] invokeMethod:@"resolve"
                                                   withArguments:@[json]];
-}
-
-- (JSValue*)loadJson:(NSString*)name
-{
-    return [self loadUrl:@"jsons" name:name];
-}
-
-- (JSValue*)loadFont:(NSString*)name
-{
-    return [self loadUrl:@"fonts" name:name];
 }
 
 @end

@@ -11,7 +11,6 @@
 
 @protocol ResourcesExport <JSExport>
 - (JSValue*)loadJson:(NSString*)name;
-- (JSValue*)loadFont:(NSString*)name;
 @end
 
 @interface Resources : NSObject<ResourcesExport>

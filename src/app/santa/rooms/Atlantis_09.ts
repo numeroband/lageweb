@@ -11,37 +11,26 @@ export class Atlantis_09 extends Room {
 		super('Atlantis_09', engine);
 	}
 
-	protected onLoad(renderer: Renderer): void {
-		this.currentActor = new Actor('Indy', this, new Text(renderer.newTexture()));
-		this.currentActor.setPosition(new Point(100, 100));
-		this.currentActor.setCostume('Atlantis_00_Cost03');
-	}
-}
-
-/*
-export class Atlantis_09 extends Room {
-	constructor(engine: Engine) {
-		super(engine, 'Atlantis_09');
-	}
-
-	defaultState(): any {
-		return {			
-		} 
+    protected costumesMap(): { [name: string]: string } {
+		return {
+			'Indy': 'Atlantis_00_Cost_03'
+		}
 	}
 
 	enter(): void {
 		console.log(`enter ${this.name}`)
-		const actor = this.engine.newActor('Indy')
-		actor.setCostume('Atlantis_00_Cost03')
-		actor.atObject(this.objects.taxi)
-		actor.faceAgainstObject(this.objects.taxi)
-		actor.setCurrent()
+		this.currentActor = this.engine.newActor('Indy');
+		this.currentActor.setPosition(new Point(100, 100));
+		this.currentActor.setCostume('Indy');
+		// this.currentActor.atObject(this.objects.taxi)
+		// this.currentActor.faceAgainstObject(this.objects.taxi)
 	}
 
 	exit(): void {
 		console.log(`exit ${this.name}`)
 	}
-	
+
+/*	
 	objects = {
 		phoneBooth: new class extends Objeto {
 			costume = 'Atlantis_00_Cost03'
@@ -111,5 +100,6 @@ export class Atlantis_09 extends Room {
 		}(this.engine),
 		
 	}
-}
 */
+}
+

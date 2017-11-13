@@ -51,3 +51,4 @@ fragment float4 fragmentShader(ColorInOut in [[stage_in]],
     }
     return float4(colorSample);
 }
+

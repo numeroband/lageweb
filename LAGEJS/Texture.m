@@ -44,7 +44,7 @@ static const size_t kBitsPerComponent = sizeof(uint8_t) * 8;
 
     NSURL *url = [[NSBundle mainBundle] URLForResource:name
                                          withExtension:@"png"
-                                          subdirectory:@"images"];
+                                          subdirectory:@"assets"];
 
     NSError *error;
     _texture = [textureLoader newTextureWithContentsOfURL:url
@@ -115,8 +115,7 @@ static const size_t kBitsPerComponent = sizeof(uint8_t) * 8;
     _surface = nil;
 }
 
-- (NSArray<NSNumber*>*)vertices:(NSDictionary<NSString*,NSNumber*>*)camera
-                              z:(NSUInteger)z
+- (NSArray<NSNumber*>*)vertices:(NSUInteger)z
                             src:(NSDictionary<NSString*,NSNumber*>*)src
                             dst:(NSDictionary<NSString*,NSNumber*>*)dst
                            flip:(BOOL)flip

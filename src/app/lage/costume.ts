@@ -1,5 +1,5 @@
 import { Texture } from './texture';
-import { Renderer, Renderable } from './renderer';
+import { Renderer } from './renderer';
 import { Point, Rect } from './common';
 import { Resources } from './resources';
 
@@ -30,7 +30,7 @@ class Limb
 
 const NUM_LIMBS = 16;
 
-export class Costume implements Renderable {
+export class Costume {
     public tex: Texture;
     public rect: Rect = new Rect(0, 0, 0, 0);
 
@@ -186,8 +186,7 @@ export class Costume implements Renderable {
         this.currentAnimation = {};
     }
 
-    vertices(camera: Rect): number[] {
-        const pos = new Point(this.pos.x - camera.x, this.pos.y - camera.y);
+    vertices(): number[] {
         const ret = [];
 
         for (const frame of this.currentFrames)
@@ -203,24 +202,18 @@ export class Costume implements Renderable {
             const limbPos = new Rect(this.pos.x + Math.floor(rel.x * this.scale), 
             this.pos.y + Math.floor(rel.y * this.scale));
             
-            if (limbPos.x < camera.w && limbPos.x + rect.w > camera.w)
-            {
-                rect.w -= (limbPos.x + rect.w - camera.w);
-            }
-            
-            if (limbPos.y < camera.h && limbPos.y + rect.h > camera.h)
-            {
-                rect.h -= (limbPos.y + rect.h - camera.h);
-            }
-
             limbPos.w = rect.w * this.scale;
             limbPos.h = rect.h * this.scale;
             
             //this.texture->setColor(this.light, this.light, this.light);
-            ret.push(...this.tex.vertices(camera, (this.z * 2) + 1, rect, limbPos, this.flip));
+            ret.push(...this.tex.vertices((this.z * 2) + 1, rect, limbPos, this.flip));
         }
 
         return ret;
+    }
+
+    render(renderer: Renderer, camera: Rect) {
+        renderer.render(this.tex, this.vertices(), camera);
     }
 }
 

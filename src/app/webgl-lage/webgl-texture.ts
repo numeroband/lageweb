@@ -37,7 +37,7 @@ export class LAGEWebGLTexture implements Texture {
     fromImage(name: string): Promise<void> {
         this.img = new Image();
         return new Promise<void>((resolve, reject) => {
-            this.img.src = `assets/images/${name}.png`;
+            this.img.src = `scumm/${name}.png`;
             this.img.addEventListener('load', () => {
                 this.createTexture();
                 resolve();
@@ -45,7 +45,7 @@ export class LAGEWebGLTexture implements Texture {
         });
     }
 
-    vertices(camera: Rect, z: number, src: Rect, dst: Rect, flip?: boolean) {
+    vertices(z: number, src: Rect, dst: Rect, flip?: boolean) {
         const minx = dst.x;
         const maxx = (dst.x + dst.w);
         const miny = dst.y;
